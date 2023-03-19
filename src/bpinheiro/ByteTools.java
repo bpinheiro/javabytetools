@@ -2,250 +2,42 @@ package bpinheiro;
 
 public class ByteTools {
 
-	private ByteEnum type;
-
-	public ByteTools(ByteEnum type) {
-		this.type = type;
-	}
-
-	/**
-	 * Retorna o array de bytes formatado em decimal, separado
-	 * por espa?o em branco, a partir da posi??o inicial solicitada,
-	 * na quantidade informada.
-	 * @param b Array de byte a ser formatado
-	 * @param offset Posi??o inicial para iniciar a contar para o retorno.
-	 * @param tam N?mero de bytes a ser formatado.
-	 * @return Retorna o array de bytes formatado em decimal.
-	 */
-	public static String byteToDec(byte[] b, int offset, int tam){
-		return byteToDec(b, offset, tam, " ", 3);
-	}
-
-	/**
-	 * Retorna o array de bytes formatado em decimal, separado
-	 * por espa?o em branco, a partir da posi??o inicial solicitada,
-	 * na quantidade informada. Offset = 0
-	 * @param b Array de byte a ser formatado
-	 * @param tam N?mero de bytes a ser formatado.
-	 * @return Retorna o array de bytes formatado em decimal.
-	 */
-	public static String byteToDec(byte[] b, int tam){
-		return byteToDec(b, 0, tam, " ", 3);
-	}
-
-	/**
-	 * Retorna o array de bytes formatado em decimal, separado
-	 * pelo valor escolhido, a partir da posi??o inicial solicitada,
-	 * na quantidade informada.
-	 * @param b Array de byte a ser formatado
-	 * @param offset Posi??o inicial para iniciar a contar para o retorno.
-	 * @param tam N?mero de bytes a ser formatado.
-	 * @param separador Separador para a formata??o do texto
-	 * @param printSize Quantidade de caracteres que um byte deve possuir
-	 * @return Retorna o array de bytes formatado em decimal.
-	 */
-	public static String byteToDec(byte[] b, int offset, int tam, String separador, int printSize){
-		boolean first = true;
-		StringBuilder ret = new StringBuilder();
-		for (int i=offset; i<offset+tam; i++){
-			StringBuilder aux = new StringBuilder();
-			aux.append("").append((b[i] & 0x0FF));
-			if (aux.length() < printSize) aux.append("0").append(aux);
-			if (aux.length() < printSize) aux.append("0").append(aux);
-			if (aux.length() < printSize) aux.append("0").append(aux);
-			if(first) first=false;
-			else ret.append(separador);
-			ret.append(aux);
+	public static int byteToInt(byte[] data, int offset, int size, boolean littleEndian) {
+		int ret   = 0;
+		int shift = 0;
+		int max   = ((size-1)*8);
+		for ( int i = 0; i < size; i++ ) {
+			shift = (i*8);
+			if (!littleEndian) { shift = max - shift; }
+			ret |= ((data[offset+i] & 0xFF) << shift);
 		}
-		return ret.toString();
+		return ret;
 	}
 
-	/**
-	 * Retorna um sub-array do array informado, iniciando na posi??o
-	 * inicial solicitada, indo at? o final do mesmo.
-	 * @param arr Array para adquirir o sub-array
-	 * @param offset Posi??o inicial para iniciar o novo array.
-	 * @return Retorna um sub-array do array informado.
-	 */
-	public static byte[] subarray(byte[] arr, int offset) {
-		return subarray(arr, offset, arr.length - offset);
-	}
-
-	/**
-	 * Retorna um sub-array do array informado, iniciando na posi??o
-	 * inicial solicitada, contando a quantidade de bytes at? o tamanho
-	 * especificado.
-	 * @param arr Array para adquirir o sub-array
-	 * @param offset Posi??o inicial para iniciar o novo array.
-	 * @param tam Tamanho para o novo array a ser formado.
-	 * @return Retorna um sub-array do array informado.
-	 */
-	public static byte[] subarray(byte[] arr, int offset, int tam) {
-		byte[] nova = new byte[tam];
-		System.arraycopy(arr, offset, nova, 0, tam);
-		return nova;
-	}
-
-	/**
-	 * Uni dois arrays, formando um com os dados dos outros dois.
-	 * @param arr1 Primeiro array para ser unido.
-	 * @param arr2 Segundo array para ser unido
-	 * @return Um array, com o primeiro seguido do segundo.
-	 */
-	public static byte[] union(byte[] arr1, byte[] arr2) {
-		byte[] arr = new byte[ arr1.length + arr2.length ];
-		System.arraycopy(arr1, 0, arr, 0		  , arr1.length);
-		System.arraycopy(arr2, 0, arr, arr1.length, arr2.length);
-		return arr;
-	}
-
-	/**
-	 * Uni dois arrays, formando um com os dados dos outros dois, considerando
-	 * as posi??es inicias de ambos, e a quantidade que ser? utilizada de cada
-	 * qual.
-	 * @param arr1 Primeiro array para ser unido.
-	 * @param posIni1 Posi??o incial do primeiro array.
-	 * @param tam1 Quantidade de bytes do primeiro array que deve ser utilizada.
-	 * @param arr2 Segundo array para ser unido
-	 * @param posIni1 Posi??o incial do segundo array.
-	 * @param tam1 Quantidade de bytes do segundo array que deve ser utilizada.
-	 * @return Um array, com os dados do primeiro seguido dos dados do segundo.
-	 */
-	public static byte[] union(byte[] arr1, int posIni1, int tam1, byte[] arr2, int posIni2, int tam2) {
-		byte[] arr = new byte[ tam1 + tam2 ];
-		System.arraycopy(arr1, posIni1, arr, 0, tam1);
-		System.arraycopy(arr2, posIni2, arr, tam1, tam2);
-		return arr;
+	public static long byteToLong(byte[] data, int offset, int size, boolean littleEndian) {
+		long ret   = 0;
+		long shift = 0;
+		long max   = ((size-1)*8);
+		for ( int i = 0; i < size; i++ ) {
+			shift = (i*8);
+			if (!littleEndian) { shift = max - shift; }
+			ret |= ((data[offset+i] & 0xFFL) << shift);
+		}
+		return ret;
 	}
 
 	
-	/**
-	 * Transforma uma string em um vetor de bytes.
-	 * @param buffer Buffer que ir? receber os bytes formatados
-	 * @param posIniBuffer Posi??o inicial do buffer a ser preenchido
-	 * @param s String a ser transformada
-	 * @param offset Posi??o inicial da string a ser considerada
-	 * @param tam Quantidades de bytes a ser transformada
-	 */
-	public static void parseString(byte[] buffer, int posIniBuffer, String s, int offset, int tam) {
-		for(int i=offset; i<offset+tam; i++)
-			buffer[posIniBuffer+i-offset] = (byte)s.charAt(i);
-	}
-
-	/**
-	 * Transforma um array de strings com valores hexadecimais em um array de bytes
-	 * @param base Base para transforma??o do n?mero
-	 * @param buffer Buffer que ir? receber os bytes formatados
-	 * @param posIniBuffer Posi??o inicial do buffer a ser preenchido
-	 * @param offset Primeira posi??o para iniciar a transforma??o
-	 * @param tam Quantidade de posi??es para serem transformadas
-	 */
-	public static void parseNumericArray(int base, byte[] buffer, int posIniBuffer, String[] pureBytes, int offset, int tam) {
-		for(int i=offset; i<offset+tam; i++)
-			buffer[posIniBuffer+i-offset] = (byte)Integer.parseInt( (pureBytes[i]), base );
-	}
-
-	/**
-	 * Transforma uma string com dados num?ricos em um array de byte,
-	 * considerando que cada byte possui um n?mero definido de caracteres.
-	 * @param base Base para transforma??o do n?mero
-	 * @param buffer Buffer que ir? receber os bytes formatados
-	 * @param posIniBuffer Posi??o inicial do buffer a ser preenchido
-	 * @param data String com os valores a serem transformados
-	 * @param posSize Tamanho que cada posi??o possuir
-	 * @param offset Primeira posi??o para iniciar a transforma??o
-	 * @param tam Quantidade de posi??es para serem transformadas
-	 */
-	public static void parseNumericPosicional(int base, byte[] buffer, int posIniBuffer, String data, int posSize, int offset, int tam) {
-		for(int i=0; i<tam; i++)
-			buffer[posIniBuffer+i] = (byte)Integer.parseInt( data.substring( offset + (i*posSize), offset + ((i+1)*posSize) ).trim(), base );
-	}
-
-	/**
-	 * Transforma um inteiro em um vetor de dois bytes, seguindo da primeira
-	 * ? ?ltima posi??o do array com os bytes menos significativos para
-	 * o mais significativo.
-	 * @param val Inteiro a ser transformado.
-	 * @return Array de byte com o valor inteiro.
-	 */
-	public static byte[] int2ToByte(int val) {
-		byte[] ret = new byte[2];
-		ret[0] = (byte) ( (val) & 255 );
-		ret[1] = (byte) ( (val >>> 8) & 255 );
-		return ret;
-	}
-
-	public static void int2ToByte(int val, byte[] ret, int offset) {
-		ret[offset]   = (byte) ( (val) & 255 );
-		ret[offset+1] = (byte) ( (val >>> 8) & 255 );
-	}
-
-	public static byte[] int2ToByteInv(int val){
-		byte[] ret = new byte[2];
-		ret[1] = (byte) ( (val) & 255 );
-		ret[0] = (byte) ( (val >>> 8) & 255 );
-		return ret;
-	}
-
-	public static int byteToInt3(byte[] bts, int offset) {
-		int ret;
-		ret =  ((bts[offset+2] & 0xFF) << 16);
-		ret |= ((bts[offset+1] & 0xFF) << 8);
-		ret |= (bts[offset]    & 0xFF);
-		return ret;
-		
-	}
-
-	public static int byteToInt3Signed (byte[] bts, int offset) {
-		int number = byteToInt3(bts, offset);
-		if((number & (1 << 23)) > 0 ){ number |= 0xff000000; }
-		return number;
-	}
-
-	/**
-	 * Cria um inteiro a partir de dois bytes de um vetor de bytes,
-	 * iniciando a contagem a partir da posi??o inicial requisitada,
-	 * tendo o primeiro byte como menos significativo, at? o ?ltimo
-	 * byte, que deve ser o mais significativo.
-	 * @param bts Vetor de bytes com o n?mero a ser transformado.
-	 * @param offset Posi??o inicial para pegar o n?mero.
-	 * @return Inteiro de dois bytes.
-	 */
-	public static int byteToInt2(byte[] bts, int offset) {
-		return byteToInt2(bts, offset, false);
-	}
-
-	public static int byteToInt2(byte[] bts, int offset, boolean hilo) {
-		int ret = 0;
-		if (hilo) {
-			ret = ((bts[offset++] & 0xFF) << 8);
-			ret |= (bts[offset] & 0xFF);
-		} else {
-			ret = (bts[offset++] & 0xFF);
-			ret |=((bts[offset] & 0xFF) << 8);
+	public static void intToByte(int val, byte[] ret, int offset, int size, boolean littleEndian) {
+		int shift = 0;
+		int max   = ((size-1)*8);
+		for ( int i = 0; i < size; i++ ) {
+			shift = (i*8);
+			if (!littleEndian) { shift = max - shift; }
+			ret[offset+i] = (byte) ( (val >> shift) & 0xFF ); 
 		}
-		return ret;
 	}
-
-
-	public static byte[] int3ToByte(int val) {
-		byte[] ret = new byte[3];
-		ret[0] = (byte) ( (val) & 255 );
-		ret[1] = (byte) ( (val >>> 8) & 255 );
-		ret[2] = (byte) ( (val >>> 16) & 255 );
-		return ret;
-	}
-
-
-	public static byte[] int3ToByteInv(int val) {
-		byte[] ret = new byte[3];
-		ret[2] = (byte) ( (val) & 255 );
-		ret[1] = (byte) ( (val >>> 8) & 255 );
-		ret[0] = (byte) ( (val >>> 16) & 255 );
-		return ret;
-	}
-
-
+	
+	
 	/**
 	 * Transforma um inteiro em um vetor de quatro bytes, seguindo da primeira
 	 * ? ?ltima posi??o do array com os bytes menos significativos para
