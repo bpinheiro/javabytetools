@@ -3,20 +3,22 @@ package bpinheiro;
 public class ByteBuffer {
 
 	private int currentPos;
-	private byte [] byteArray;
+	private byte [] array;
+	private boolean littleEndian;
 
-	public ByteBuffer(int initialSize) {
-		byteArray = new byte[initialSize];
+	public ByteBuffer(int initialSize, boolean littleEndian) {
+		this.array 		  = new byte[initialSize];
+		this.littleEndian = littleEndian;
 		reset();
 	}
 
 	public ByteBuffer() {
-		this(100);
+		this(100, true);
 	}
 
 	public void addStringZ(String string) {
 		addString(string);
-		addInt1(0);
+		add((byte)0);
 	}
 
 	public void addString(String string) {
@@ -24,64 +26,34 @@ public class ByteBuffer {
 	}
 
 	public void addString(String string, int size) {
-		add(ByteTools.stringToByte(string, size));
+		add(ByteArray.stringToByte(string, size));
 	}
 
-	public void addInt3(int value){
-		add(ByteTools.int3ToByte(value));
+	public void addInt(int value, int typeSize){
+		add(ByteArray.intToByte(value, typeSize, this.littleEndian));
 	}
 
-
-	public void addInt4(int... value){
-		for (int i : value)addInt4(i);
+	public void addLong(long value, int typeSize) {
+		add(ByteArray.longToByte(value, typeSize, this.littleEndian));
 	}
 
-	public void addInt4(int value){
-		add(ByteTools.int4ToByte(value));
-	}
-	
-	public void addInt4Inv(int value) {
-		add(ByteTools.int4ToByteInv(value));
-	}
-
-	public void addInt1(int value){
-		add((byte)value);
-	}
-
-	public void addInt2(int value){
-		add(ByteTools.int2ToByte(value));
-	}
-	
-	public void addInt2Inv(int value){
-		add(ByteTools.int2ToByteInv(value));
-	}
-
-	public void addLong4(long nh) {
-		byte[] d = new byte[4];
-		ByteTools.long4ToByte(nh, d, 0);
-		add(d);
-	}
-	
-	public void addLong4Inv(long nh) {
-		byte[] d = new byte[4];
-		ByteTools.long4ToByteInv(nh, d, 0);
-		add(d);
-	}
-
-	public void reset() {
-		currentPos = 0;
-	}
-
-	public void add(byte... b){
-		for(byte c : b){
-			add(c);
-		}
-	}
-
-	public void addEmpty (int size) {
+	public void addEmpty(int size) {
 		if (size > 0) {
 			add(new byte[size]);
 		}
+	}
+
+	public void reset() {
+		this.currentPos = 0;
+	}
+
+	public void add(byte b) {
+		verify();
+		this.array[this.currentPos++] = b;
+	}
+
+	public void add(byte... b) {
+		for (byte c : b) { add(c); }
 	}
 
 	public void add( int offset, int length, byte... b) {
@@ -90,27 +62,21 @@ public class ByteBuffer {
 		}
 	}
 
-	public void add (byte b) {
-		verify();
-		byteArray[currentPos++] = b;
-	}
-
 	public byte [] getBytes() {
 		byte [] result = new byte[currentPos];
-		System.arraycopy(byteArray, 0, result, 0, currentPos);
+		System.arraycopy(array, 0, result, 0, currentPos);
 		return  result;
 	}
-	
 	
 	public int getCurrentPos() {
 		return currentPos;
 	}
 
 	private void verify(){
-		if (currentPos >= byteArray.length) {
-			byte [] newByteArray = new byte[ (byteArray.length + 1) * 2];
-			System.arraycopy(byteArray, 0, newByteArray, 0, byteArray.length);
-			byteArray = newByteArray;
+		if (currentPos >= array.length) {
+			byte [] newByteArray = new byte[ (array.length + 1) * 2];
+			System.arraycopy(array, 0, newByteArray, 0, array.length);
+			array = newByteArray;
 		}
 	}
 }
