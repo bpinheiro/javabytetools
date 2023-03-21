@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.Calendar;
 
 public class ByteArrayRead {
 	
@@ -44,18 +43,6 @@ public class ByteArrayRead {
 	}
 
 	
-
-	/**
-	 * Signed 24 bits
-	 * @return
-	 */
-	public int readSigned24() {
-		int number =  ByteTools.byteToInt3Signed(data, p);
-		p+=3;
-		return number;
-	}
-	
-
 	/**
 	 * Read 1 char byte size
 	 * @return car
@@ -85,29 +72,8 @@ public class ByteArrayRead {
 	public byte readByte(){
 		return data[p++];
 	}
-	
-	public int readInt1(){
-		return data[p++] & 0xFF;
-	}
 
-
-	public int readInt1Signed() {
-		return data[p++];
-	}
-
-
-	public int readInt2Inv(){
-		int d =  ByteTools.byteToInt2(data,p, true);
-		p+=2;
-		return d;
-	}
-
-	public int readInt2(){
-		int d =  ByteTools.byteToInt2(data,p, false);
-		p+=2;
-		return d;
-	}
-		
+	/*
 	public int readInt2Signed(){
 		int d =  ByteTools.byteToInt2(data,p, false);
 		p+=2;
@@ -119,33 +85,7 @@ public class ByteArrayRead {
 		p+=4;
 		return ( ( d & 0x80000000) > 0 ) ?  ( d - 0xFFFFFFFF - 1 ) : d;
 	}
-
-	
-	public int readInt4(){
-		int d =ByteTools.byteToInt4(data,p); 
-		p+=4;
-		return d;
-	}
-	
-	public int readInt4Inv() {
-		int d =ByteTools.byteToInt4(data,p, true); 
-		p+=4;
-		return d;
-	}
-	
-	public long readLong4(){
-		long d = ByteTools.byteToLong4(data,p);
-		p+=4;
-		return d; 
-	}
-
-	public int[] readArrayInt4(int qtd) {
-		int[] vals = new int[qtd];
-		for (int j = 0; j < qtd; j++) {
-			vals[j] = readInt4();
-		}
-		return vals;
-	}
+	*/
 	
 	/**
 	 * Check if has data in buffer
@@ -179,29 +119,6 @@ public class ByteArrayRead {
 		return (data[p++] == 1 );
 	}
 	
-
-	/**
-	 * Leitura de 8 bytes
-	 * @return
-	 */
-	public long readLong() {
-		long d = ByteTools.byteToLong(data,p);
-		p+=8;
-		return d;
-	}
-
-	
-	
-	/**
-	 * Read 4 bytes java calendar
-	 * @return
-	 */
-	public Calendar readCalendar() {
-		Calendar c = Calendar.getInstance();
-		c.setTimeInMillis(readLong4() * 1000);
-		return c;
-	}
-
 	/**
 	 * Jump n bytrss 
 	 * @param qtd  
@@ -227,7 +144,6 @@ public class ByteArrayRead {
 	
 	public byte[] readArrayInv(int qtd) {
 		byte array[] = readArray(qtd);
-
 		byte rev[] = new byte[array.length]; 
 		int j = 0;
 		for (int i = (array.length-1) ; i >= 0 ; i--)rev[j++] = array[i];
@@ -250,8 +166,6 @@ public class ByteArrayRead {
 		}
 		return buffer.toString();
 	}
-
-
 
 	public String readString(int qtd) {
 	    StringBuffer str = new StringBuffer();
@@ -286,7 +200,6 @@ public class ByteArrayRead {
 		return new String(finalData, Charset.forName("UTF-8"));
 	}
 
-	
 	public String readStringInv(int qtd){
 	    StringBuffer str = new StringBuffer();
 	    byte data[] = readArray(qtd);	    
@@ -298,7 +211,6 @@ public class ByteArrayRead {
 	    return str.toString();
 	}
 
-	
 	public byte[] readFile(File file) throws IOException {
 		InputStream inputStream = new FileInputStream(file);
 	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -319,7 +231,6 @@ public class ByteArrayRead {
 	    DataOutputStream dos = new DataOutputStream(baos);
 	    byte[] data = new byte[128];
 	    int count = inputStream.read(data);
-	    
 	    while(count != -1){
 	        dos.write(data, 0, count);
 	        int av = inputStream.available();
@@ -339,5 +250,4 @@ public class ByteArrayRead {
 	public void setOffset(int ptr) {
 		p = ptr;
 	}
-
 }
