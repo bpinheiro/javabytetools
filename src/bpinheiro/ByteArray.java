@@ -1,5 +1,7 @@
 package bpinheiro;
 
+import java.util.Arrays;
+
 public class ByteArray {
 
 	/**
@@ -22,6 +24,22 @@ public class ByteArray {
 		return ret;
 	}
 	
+	private static int signedIntConvert(int n, int size) {
+		int bit = 0x80, mask = 0xFF;
+		switch (size) {
+			case 2: bit = 0x8000    ; mask = 0xFFFF;     break;
+			case 3: bit = 0x800000  ; mask = 0xFFFFFF;   break;
+			case 4: bit = 0x80000000; mask = 0xFFFFFFFF; break;
+		}
+		return ((n & bit) >  0 ) ? (n-(mask)-1) : n;
+	}
+	
+	public static int byteToSignedInt(byte[] data, int offset, int size, boolean littleEndian) {
+		int val = byteToInt(data, offset, size, littleEndian);
+		return signedIntConvert(val, size);
+	}
+	
+	
 	/**
 	 * Convert a array of bytes into a long variable  
 	 * @param data - array with values
@@ -40,6 +58,27 @@ public class ByteArray {
 			ret |= ((data[offset+i] & 0xFFL) << shift);
 		}
 		return ret;
+	}
+
+	
+	private static long signedLongConvert(long n, int size) {
+		long bit = 0x80, mask = 0xFFL;
+		switch (size) {
+			case 2: bit = 0x8000L;		      mask = 0xFFFFL;             break;
+			case 3: bit = 0x800000L;	   	  mask = 0xFFFFFFL;           break;
+			case 4: bit = 0x80000000L; 		  mask = 0xFFFFFFFFL;         break;
+			case 5: bit = 0x8000000000L; 	  mask = 0xFFFFFFFFFFL;       break;
+			case 6: bit = 0x800000000000L; 	  mask = 0xFFFFFFFFFFFFL;     break;
+			case 7: bit = 0x80000000000000L;  mask = 0xFFFFFFFFFFFFFFL;   break;
+			case 8: bit = 0x8000000000000000L;mask = 0xFFFFFFFFFFFFFFFFL; break;
+		}
+		return ((n & bit) >  0 ) ? (n - mask -1) : n;
+	}
+
+	
+	public static long byteToSignedLong(byte[] data, int offset, int size, boolean littleEndian) {
+		long val = byteToInt(data, offset, size, littleEndian);
+		return signedLongConvert(val, size);
 	}
 	
 	public static byte[] intToByte(int val, int size, boolean littleEndian) {
@@ -76,56 +115,23 @@ public class ByteArray {
 		return byteToHex(b, 0, b.length);
 	}
 	
-	/**
-	 * Retorna o array de bytes formatado em hexadecimal, separado
-	 * por espa?o em branco, a partir da posi??o inicial solicitada.
-	 * @param b Array de byte a ser formatado
-	 * @param offset Posi??o inicial para iniciar a contar para o retorno.
-	 * @return Retorna o array de bytes formatado em hexadecimal.
-	 */
 	public static String byteToHex(byte[] b, int offset){
 		return byteToHex(b, offset, b.length - offset);
 	}
 
-	/**
-	 * Retorna o array de bytes formatado em hexadecimal, separado
-	 * por espa?o em branco, a partir da posi??o inicial solicitada.
-	 * @param b Array de byte a ser formatado
-	 * @param separador Separador para a formata??o do texto
-	 * @return Retorna o array de bytes formatado em hexadecimal.
-	 */
 	public static String byteToHex(byte[] b,String separador){
 		return byteToHex(b, 0, b.length, separador);
 	}
-	/**
-	 * Retorna o array de bytes formatado em hexadecimal, separado
-	 * por espa?o em branco, a partir da posi??o inicial solicitada,
-	 * na quantidade informada.
-	 * @param b Array de byte a ser formatado
-	 * @param offset Posi??o inicial para iniciar a contar para o retorno.
-	 * @return Retorna o array de bytes formatado em hexadecimal.
-	 */
+
 	public static String byteToHex(byte[] b, int offset, int size){
 		return byteToHex(b, offset, size, " ");
 	}
 	
-	/**
-	 * Retorna o array de bytes formatado em hexadecimal, separado
-	 * pelo valor escolhido, a partir da posi??o inicial solicitada,
-	 * na quantidade informada.
-	 * @param b Array de byte a ser formatado
-	 * @param offset Posi??o inicial para iniciar a contar para o retorno.
-	 * @param separador Separador para a formata??o do texto
-	 * @return Retorna o array de bytes formatado em hexadecimal.
-	 */
 	public static String byteToHex(byte[] b, int offset, int size, String separador){
 		StringBuilder ret = new StringBuilder();
 		for (int i=offset; i<offset+size; i++){
-			String aux = Integer.toHexString( b[i] & 0x0FF );
-			if(aux.length() < 2) aux = "0" + aux;
-			if(aux.length() < 2) aux = "0" + aux;
-			if(i > offset) ret.append(separador);
-			ret.append(aux.toUpperCase());
+			if (i > offset) ret.append(separador);
+			ret.append(String.format("%02X", b[i]));
 		}
 		return ret.toString();
 	}
@@ -169,9 +175,7 @@ public class ByteArray {
 	}
 	
 	public static boolean isArraysEquals(byte[] array1, byte[] array2) {
-		if(array1.length != array2.length )return false;
-		for (int i = 0; i < array2.length; i++)if(array2[i] != array1[i])return false;
-		return true;
+		return Arrays.equals(array1, array2);
 	}
 
 	public static boolean isEmpty(byte[] data) {
@@ -192,5 +196,4 @@ public class ByteArray {
 		System.arraycopy(strData,0,result, 0,(strData.length > maxSize) ? maxSize : strData.length);
 		return result;
 	}
-
 }	

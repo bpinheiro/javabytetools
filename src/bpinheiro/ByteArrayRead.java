@@ -14,34 +14,40 @@ public class ByteArrayRead {
 	private byte data[];
 	private int p;
 	private int backupP;
+	private boolean littleEndian;
 	
 	
 	/**
-	 * Leitura de um arquivo binário
+	 * Read a binary file
 	 * @param file
 	 * @throws IOException
 	 */
-	public ByteArrayRead(File file) throws IOException{
+	public ByteArrayRead(File file, boolean littleEndian) throws IOException{
 		this.data = readFile(file);
+		this.littleEndian = littleEndian;
 		this.p=0;
 	}
 	
-	public ByteArrayRead(DataInputStream inputStream) throws IOException{
+	public ByteArrayRead(DataInputStream inputStream, boolean littleEndian) throws IOException{
 		this.data = readInputStream(inputStream);
+		this.littleEndian = littleEndian;
 		this.p=0;
 	}
 
 	
-	public ByteArrayRead(byte[] data) {
+	public ByteArrayRead(byte[] data, int offset, boolean littleEndian) {
 		this.data = data;
-		this.p=0;
-	}
-
-	public ByteArrayRead(byte[] data, int offset) {
-		this.data = data;
+		this.littleEndian = littleEndian;
 		this.p= offset;
 	}
 
+	public ByteArrayRead(byte[] data, boolean littleEndian) {
+		this(data, 0, littleEndian);
+	}
+
+	public ByteArrayRead(byte[] data) {
+		this(data, 0, true);
+	}
 	
 	/**
 	 * Read 1 char byte size
@@ -72,20 +78,32 @@ public class ByteArrayRead {
 	public byte readByte(){
 		return data[p++];
 	}
+	
+	
+	public int readInt(int size) {
+		int val = ByteArray.byteToInt(this.data, this.p, size, this.littleEndian);
+		this.p+=size;
+		return val;
+	}
 
-	/*
-	public int readInt2Signed(){
-		int d =  ByteTools.byteToInt2(data,p, false);
-		p+=2;
-		return ( ( d & 0x8000) > 0 ) ?  ( d - 0xFFFF - 1 ) : d;
+	public int readSignedInt(int size) {
+		int val = ByteArray.byteToSignedInt(this.data, this.p, size, this.littleEndian);
+		this.p+=size;
+		return val;
+	}
+
+	public long readLong(int size) {
+		long val = ByteArray.byteToInt(this.data, this.p, size, this.littleEndian);
+		this.p+=size;
+		return val;
+	}
+
+	public long readSignedLong(int size) {
+		long val = ByteArray.byteToSignedInt(this.data, this.p, size, this.littleEndian);
+		this.p+=size;
+		return val;
 	}
 	
-	public int readInt4Signed(){
-		int d =  ByteTools.byteToInt4(data,p, false);
-		p+=4;
-		return ( ( d & 0x80000000) > 0 ) ?  ( d - 0xFFFFFFFF - 1 ) : d;
-	}
-	*/
 	
 	/**
 	 * Check if has data in buffer
@@ -96,7 +114,7 @@ public class ByteArrayRead {
 	}
 
 	/**
-	 * Calcula quanto falta para acabar
+	 * Calculate how much to finish
 	 * @return
 	 */
 	public int calcData() {
@@ -116,7 +134,7 @@ public class ByteArrayRead {
 	 * @return
 	 */
 	public boolean readBoolean() {
-		return (data[p++] == 1 );
+		return (this.data[this.p++] == 1 );
 	}
 	
 	/**
@@ -124,7 +142,7 @@ public class ByteArrayRead {
 	 * @param qtd  
 	 */
 	public void readEmpty(int qtd){
-		p+=qtd;
+		this.p+=qtd;
 	}
 	
 	/**
@@ -137,7 +155,7 @@ public class ByteArrayRead {
 	
 	public byte[] readArray(int qtd){
 		byte array[] = new byte[qtd];
-		System.arraycopy(data,p,array,0,qtd);
+		System.arraycopy(this.data,this.p, array, 0, qtd);
 		p+=qtd;
 		return array;
 	}
@@ -152,8 +170,16 @@ public class ByteArrayRead {
 
 	
 	public byte[] readAll() {
-		int qtd = data.length - p;
+		int qtd = this.data.length - this.p;
 		return readArray(qtd);
+	}
+	
+	public int getOffset() {
+		return p;
+	}
+
+	public void setOffset(int ptr) {
+		this.p = ptr;
 	}
 	
 	public String readLine() {
@@ -170,7 +196,7 @@ public class ByteArrayRead {
 	public String readString(int qtd) {
 	    StringBuffer str = new StringBuffer();
 	    for (int i = 0; i < qtd; i++){
-	    	byte c = data[p++];
+	    	byte c = this.data[this.p++];
 	    	if(c !=0x00)str.append((char)c);
 	    }
 	    return str.toString();
@@ -179,14 +205,12 @@ public class ByteArrayRead {
 	public String readString() {
 		StringBuffer str = new StringBuffer();
 		byte c;
-		while( (c = data[p++]) != 0) {
-			str.append((char)c);
-		}
+		while( (c = data[p++]) != 0) { str.append((char)c); }
 		return str.toString();
 	}
 
 	/**
-	 * Le carectees ascii especiais com acento ou nao
+	 * Read special ascii chars like accents for example
 	 * @param maxSize - desejavel o tamanho aproximado da string
 	 * @return
 	 */
@@ -234,20 +258,12 @@ public class ByteArrayRead {
 	    while(count != -1){
 	        dos.write(data, 0, count);
 	        int av = inputStream.available();
-	        if(av > 0 ){
+	        if (av > 0 ) {
 	        	count = inputStream.read(data);
 	        } else {
 	        	count = -1;
 	        }
 	    }
 	    return baos.toByteArray();
-	}
-
-	public int getOffset() {
-		return p;
-	}
-
-	public void setOffset(int ptr) {
-		p = ptr;
 	}
 }

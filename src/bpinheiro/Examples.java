@@ -6,6 +6,12 @@ public class Examples {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+
+		//native version, retrict and boring
+		//long d = java.nio.ByteBuffer.wrap(new byte[] {0x12, 0x34, 0x56, 0x78}).order(ByteOrder.LITTLE_ENDIAN).getInt();
+		//System.out.println("d: " + d);
+		
+		
 		int number;
 		int check;
 		byte[] data;
@@ -19,9 +25,9 @@ public class Examples {
 		//--------------------------------------------------------
 		
 		//Test with 1 byte, it makes no difference little endian or big endian 
-		data   = new byte[]{(byte)0xF0};
+		data   = new byte[]{-1};
 		check  = 240;
-		number = ByteArray.byteToInt(data, 0, 1, true);
+		number = ByteArray.byteToSignedInt(data, 0, 1, true);
 		System.out.println("Array [" + ByteArray.byteToHex(data, ",") + "] in little endian is: " + number + " valid: " + (number == check));
 		
 		//Test with 2 byte in little endian format 
@@ -65,7 +71,7 @@ public class Examples {
 		//--------------------------------------------------------
 
 		//Test with 1 byte, it makes no difference little endian or big endian 
-		number = 240;
+		number = 1;
 		data   = new byte[]{(byte)0xF0};
 		res    = ByteArray.intToByte(number, 1, true);
 		System.out.println("Number: " + number + " is array [" + ByteArray.byteToHex(res, ",") +  "] valid: " + ByteArray.isArraysEquals(data, res));

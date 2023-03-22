@@ -1,6 +1,6 @@
 # javabytetools
 
-Working with bytes on java can be easy and funny.
+Working with bytes on java can be easy and funny. Ok i know java has a ByteBuffer class but this implementation is simpler
 
 ## Usage
 
